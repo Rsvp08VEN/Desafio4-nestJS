@@ -1,98 +1,237 @@
-POST /repuestos
-Descripción: Crear un nuevo repuesto.
-Cuerpo de la petición (JSON):
+COMO FUNCIONA ?
+
+Esta aplicación cuenta con tres controladores principales 
+que gestionan distintas funcionalidades: Usuarios, Repuestos, 
+y Autenticación (Auth). A continuación, se detallan las rutas disponibles, 
+el tipo de request, y las respuestas esperadas.
+
+todas la ruta usan una urk parecia a esta https://desafio4-nestjs-production.up.railway.app añadiendo las rutas que se mostraran
+ a continuacion
+
+1 - Controlador de Usuarios-------------------------------------------------------------------------------------
+Este controlador maneja las operaciones relacionadas con la creación de usuarios.
+
+Rutas disponibles:
+
+POST /usuarios/register
+
+Descripción: Permite registrar un nuevo usuario.
+
+Body esperado (JSON):
+json
 {
   "nombre": "string",
-  "marca": "string",
-  "modelo": "string",
-  "anio": number,
-  "precio": number,
-  "foto": "string"
-}
-Respuesta (JSON):
-{
-  "id": number,
-  "nombre": "string",
-  "marca": "string",
-  "modelo": "string",
-  "anio": number,
-  "precio": number,
-  "foto": "string"
+  "email": "string",
+  "password": "string",
+  "roles": "string"
 }
 
-GET /repuestos
-Descripción: Obtener todos los repuestos.
-Respuesta (JSON):
+Respuesta exitosa:
+json
+{
+  "nombre": "string",
+  "email": "string",
+  "password": "string" esta contraseña se encripta antes de entrar a la base de datos,
+  "roles": [
+    "admin" o "user"
+  ],
+  "_id": "string" este id se genera automaticamente en la base de datos,
+  "__v": number este campo con su valor se genera automaticamente en la base de datos
+}
+
+Errores posibles:
+400 Bad Request si faltan datos obligatorios.
+500 Internal Server Error si ocurre un problema en el servidor.
+
+
+2 - Controlador de Autenticación -------------------------------------------------------------------------------
+Este controlador gestiona el inicio de sesión y la autenticación de usuarios. 
+
+Rutas disponibles:
+
+POST /auth/login
+
+Descripción: Permite a un usuario iniciar sesión. Esta ruta es la que se encarga de entregarte 
+un token con el cual podras acceder a las demas rutas si el usuario con el que te inicias sesion tiene 
+el rol adecuado
+
+Body esperado (JSON):
+
+json
+{
+  "email": "string",
+  "password": "string"
+}
+
+Respuesta exitosa:
+
+json
+{
+  "access_token": "JWT_GENERADO_AQUI"
+}
+
+Errores posibles:
+401 Unauthorized si las credenciales son incorrectas.
+
+3 - Controlador de Repuestos (repuestos.controller.ts)---------------------------------------------------------
+Este controlador gestiona la creación, consulta, actualización y eliminación de repuestos.
+Algunas rutas están protegidas por autenticación y autorización con roles específicos.
+
+Rutas disponibles:
+
+POST /repuestos
+
+Descripción: Crea un nuevo repuesto (requiere autenticación y rol de admin).
+
+Headers:
+
+Authorization(se coloca donde dice name): Bearer JWT_GENERADO_AQUI (se coloca donde dice value)
+
+Body esperado (JSON):
+
+json
+
+{
+  "nombre": "string",
+  "marca": "string",
+  "modelo": "string",
+  "anio": number,
+  "precio": number,
+  "foto": "string",
+  "_id": "string",
+  "__v": nunber
+}
+
+Respuesta exitosa:
+
+json
+{
+  "nombre": "string",
+  "marca": "string",
+  "modelo": "string",
+  "anio": number,
+  "precio": number,
+  "foto": "string",
+  "_id": "string",
+  "__v": nunber
+}
+
+Errores posibles:
+403 Forbidden si el usuario no tiene permisos.
+401 Unauthorized si el token de autenticación no es válido.
+
+GET /repuestos|||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
+
+Descripción: Obtiene todos los repuestos (requiere autenticación y el rol de user).
+
+Headers:
+
+Authorization(se coloca donde dice name): Bearer JWT_GENERADO_AQUI (se coloca donde dice value)
+
+
+Respuesta exitosa:
+
+json
 [
   {
-    "id": number,
     "nombre": "string",
     "marca": "string",
     "modelo": "string",
     "anio": number,
     "precio": number,
-    "foto": "string"
+    "foto": "string",
+   "_id": "string",
+    "__v": nunber
   }
+  ...
 ]
+GET /repuestos/:id|||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
 
-GET /repuestos/:id
-Descripción: Obtener un repuesto por ID.
-Parámetro:
-- id: Número del repuesto (en la URL).
-Respuesta (JSON):
-{
-  "id": number,
-  "nombre": "string",
-  "marca": "string",
-  "modelo": "string",
-  "anio": number,
-  "precio": number,
-  "foto": "string"
-}
-Si no se encuentra:
-{
-  "statusCode": 404,
-  "message": "Repuesto con ID {id} no encontrado.",
-  "error": "Not Found"
-}
+Descripción: Obtiene un repuesto específico por ID (requiere autenticación y el rol de user).
+
+Headers:
+
+Authorization(se coloca donde dice name): Bearer JWT_GENERADO_AQUI (se coloca donde dice value)
+
+Parámetro URL:
+id (string): El identificador único del repuesto.
+
+
+Respuesta exitosa:
+json
+  {
+    "nombre": "string",
+    "marca": "string",
+    "modelo": "string",
+    "anio": number,
+    "precio": number,
+    "foto": "string",
+   "_id": "string",
+    "__v": nunber
+  }
+
+Errores posibles:
+404 Not Found si no se encuentra el repuesto.
+
+PUT /repuestos/:id|||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
+
+Descripción: Actualiza un repuesto por ID (requiere autenticación y el rol de admin).
+
+Headers:
+
+Authorization(se coloca donde dice name): Bearer JWT_GENERADO_AQUI (se coloca donde dice value)
+
+Parámetro URL:
+id (string): El identificador único del repuesto.
+
+Body esperado (parcial):
+puedes cambiar cualquier campo de estos, ya sea indivialmente, osea un solo campo, en grupos de 2 o mas y todos 
+los campos a la vez 
+
+json
+  {
+    "nombre": "string",
+    "marca": "string",
+    "modelo": "string",
+    "anio": number,
+    "precio": number,
+    "foto": "string",
+   "_id": "string",
+    "__v": nunber
+  }
+Respuesta exitosa:
+json(actualizado)
+  {
+    "nombre": "string",
+    "marca": "string",
+    "modelo": "string",
+    "anio": number,
+    "precio": number,
+    "foto": "string",
+   "_id": "string",
+    "__v": nunber
+  }
 
 DELETE /repuestos/:id
-Descripción: Eliminar un repuesto por ID.
-Parámetro:
-- id: Número del repuesto (en la URL).
-Respuesta (JSON):
-{
-  "id": number,
-  "nombre": "string",
-  "marca": "string",
-  "modelo": "string",
-  "anio": number,
-  "precio": number,
-  "foto": "string"
-}
-Si no se encuentra:
-{
-  "statusCode": 404,
-  "message": "Repuesto con ID {id} no encontrado.",
-  "error": "Not Found"
-}
 
-PUT /repuestos/:id
-Descripción: Actualizar un repuesto por ID.
-Parámetro:
-- id: Número del repuesto (en la URL).
-Respuesta (JSON):
-{
-  "nombre": "string",
-  "marca": "string",
-  "modelo": "string",
-  "anio": number,
-  "precio": number,
-  "foto": "string"
-}
-Si no se encuentra:
-{
-  "statusCode": 404,
-  "message": "Repuesto con ID {id} no encontrado.",
-  "error": "Not Found"
-}
+Descripción: Elimina un repuesto por ID (requiere autenticación y el rol de admin).
+
+Headers:
+
+Authorization(se coloca donde dice name): Bearer JWT_GENERADO_AQUI (se coloca donde dice value)
+
+Parámetro URL:
+id (string): El identificador único del repuesto.
+
+Respuesta exitosa:
+json
+  {
+    "nombre": "string",
+    "marca": "string",
+    "modelo": "string",
+    "anio": number,
+    "precio": number,
+    "foto": "string",
+   "_id": "string",
+    "__v": nunber
+  }
