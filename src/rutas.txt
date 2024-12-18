@@ -1,0 +1,98 @@
+POST /repuestos
+Descripción: Crear un nuevo repuesto.
+Cuerpo de la petición (JSON):
+{
+  "nombre": "string",
+  "marca": "string",
+  "modelo": "string",
+  "anio": number,
+  "precio": number,
+  "foto": "string"
+}
+Respuesta (JSON):
+{
+  "id": number,
+  "nombre": "string",
+  "marca": "string",
+  "modelo": "string",
+  "anio": number,
+  "precio": number,
+  "foto": "string"
+}
+
+GET /repuestos
+Descripción: Obtener todos los repuestos.
+Respuesta (JSON):
+[
+  {
+    "id": number,
+    "nombre": "string",
+    "marca": "string",
+    "modelo": "string",
+    "anio": number,
+    "precio": number,
+    "foto": "string"
+  }
+]
+
+GET /repuestos/:id
+Descripción: Obtener un repuesto por ID.
+Parámetro:
+- id: Número del repuesto (en la URL).
+Respuesta (JSON):
+{
+  "id": number,
+  "nombre": "string",
+  "marca": "string",
+  "modelo": "string",
+  "anio": number,
+  "precio": number,
+  "foto": "string"
+}
+Si no se encuentra:
+{
+  "statusCode": 404,
+  "message": "Repuesto con ID {id} no encontrado.",
+  "error": "Not Found"
+}
+
+DELETE /repuestos/:id
+Descripción: Eliminar un repuesto por ID.
+Parámetro:
+- id: Número del repuesto (en la URL).
+Respuesta (JSON):
+{
+  "id": number,
+  "nombre": "string",
+  "marca": "string",
+  "modelo": "string",
+  "anio": number,
+  "precio": number,
+  "foto": "string"
+}
+Si no se encuentra:
+{
+  "statusCode": 404,
+  "message": "Repuesto con ID {id} no encontrado.",
+  "error": "Not Found"
+}
+
+PUT /repuestos/:id
+Descripción: Actualizar un repuesto por ID.
+Parámetro:
+- id: Número del repuesto (en la URL).
+Respuesta (JSON):
+{
+  "nombre": "string",
+  "marca": "string",
+  "modelo": "string",
+  "anio": number,
+  "precio": number,
+  "foto": "string"
+}
+Si no se encuentra:
+{
+  "statusCode": 404,
+  "message": "Repuesto con ID {id} no encontrado.",
+  "error": "Not Found"
+}
